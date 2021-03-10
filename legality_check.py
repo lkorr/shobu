@@ -49,7 +49,7 @@ def aggressive_move(color, passive_board, stone_coordinate, vector):
     opponent.remove(color)             #returns w if color is b, b if color is w
     while True:
         move_position=np.array(stone_coordinate)+np.array(vector)
-        unit_vector=np.array(vector)//2
+        unit_vector=np.array(vector)%2
         if stone_coordinate[0] % 2 == passive_board % 2:
             print('error: stone must be played on opposite colored board as your passive move')                 #must play on boards of opposite parity
             legal = False
