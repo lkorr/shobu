@@ -1,13 +1,13 @@
 import numpy as np
-import time
-zeros=np.zeros((4,4,4),dtype='str')
+zeros=np.zeros((4,4,4),dtype='str')                                                             #initializes the board state
 board=np.array((('b','b','b','b'),(' ',' ',' ',' '),(' ',' ',' ',' '),('w','w','w','w')))
 board=np.core.defchararray.add(zeros, board)
-unit_vectors=np.array([[0,1, 0], [0,0, 1], [0,1, 1], [0,-1, 0], [0,0, -1], [0,-1, -1]])
-viable_vectors=np.concatenate((unit_vectors,unit_vectors*2))                #defines the legal vectors for stone movement up to two spaces
+
+unit_vectors=np.array([[0,1, 0], [0,0, 1], [0,1, 1], [0,-1, 0], [0,0, -1], [0,-1, -1]])         #defines the legal vectors for stone movement up to two spaces
+viable_vectors=np.concatenate((unit_vectors,unit_vectors*2))
 
 
-def check_if_pushes(board,stone,vector):
+def check_if_pushes(board,stone,vector):                                                         #checks if there is a stone in the vector path of the aggressive move
     if board[stone[0]][stone[1]+vector[1]][stone[2]+vector[2]]!=' 'or\
                 board[stone[0]][stone[1]+int(round(vector[1]/2+0.1))][stone[2]+int(round(vector[2]/2+0.1))]!=' ':
         return True
@@ -43,8 +43,6 @@ def passive_move(color,stone_coordinate,move_coordinate):
             legal = False
             pass
         return legal, vector, stone_coordinate[0]
-            #(x,y) notation i.e.(3,2)
-            #if board[move_coordinate]-board[stone_coordinate]:
 def aggressive_move(color, passive_board, stone_coordinate, vector):
     legal=True
     opponent=['b','w']
@@ -61,8 +59,6 @@ def aggressive_move(color, passive_board, stone_coordinate, vector):
             legal = False
             pass
         try:
-            #if board[stone_coordinate[0]][stone_coordinate[1] + vector[1]][stone_coordinate[2] + vector[2]] == color \
-            #    or board[stone_coordinate[0]][stone_coordinate[1]+int(round(((vector[1])/2)+0.1))][stone_coordinate[2]+int(round((vector[2])/2)+0.1)]==color:
             if board[move_position[0]][move_position[1]][move_position[2]]==color or board[stone_coordinate[0]][stone_coordinate[1]+unit_vector[1]][stone_coordinate[2]+unit_vector[2]]==color:
                 legal = False
                 print('Error: Cannot push your own stones')         #if vector length = 2, checks both spots. if length = 1, only checks destination
@@ -77,9 +73,9 @@ def aggressive_move(color, passive_board, stone_coordinate, vector):
         return legal
 def passive_aggressive(color,init_stone,init_move,aggro_stone):
     legal=False
-    passive_legal, vector, sub_board = passive_move(color, init_stone, init_move)
-    aggro_legal=aggressive_move(color, sub_board, aggro_stone, vector)
-    aggressive_moved=(aggro_stone[0],aggro_stone[1]+vector[1],aggro_stone[2]+vector[2])
+    passive_legal, vector, sub_board = passive_move(color, init_stone, init_move)       #determines if passive move is legal, records the vector of the move
+    aggro_legal=aggressive_move(color, sub_board, aggro_stone, vector)                  #using the vector from passive move, applies to aggressive stone and determines if legal
+    aggressive_moved=(aggro_stone[0],aggro_stone[1]+vector[1],aggro_stone[2]+vector[2]) #records position of newly moved aggressive stone
     print('stone selected: '+str([board[init_stone[0]][init_stone[1]][init_stone[2]]])+ ' at ' + str(init_stone))
     print('move position: '+str([board[init_move[0]][init_move[1]][init_move[2]]]) + ' at ' +str(init_move))
     print('aggressive stone selected: '+str([board[aggro_stone[0]][aggro_stone[1]][aggro_stone[2]]]) + ' at ' +str(aggro_stone))
@@ -87,5 +83,5 @@ def passive_aggressive(color,init_stone,init_move,aggro_stone):
     if aggro_legal==True and passive_legal==True:
         legal = True
     return legal
-legality=passive_aggressive('b',(1,0,0),(1,2,0),(2,0,1))
+legality=passive_aggressive('b',(1,0,0),(1,2,0),(2,0,1))            #test cases
 print(legality)
