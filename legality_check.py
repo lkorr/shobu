@@ -72,11 +72,11 @@ def aggressive_move(color, passive_board, stone_coordinate, vector):
         if obtain_board_pos(move_position)==color or obtain_board_pos(np.array(stone_coordinate)+np.array(unit_vector))==color:
             print('Error: Cannot push your own stones')         #if vector length = 2, checks both spots. if length = 1, only checks destination
             legal = False
-        if str(obtain_board_pos(move_position))==opponent and (str(obtain_board_pos(move_position+unit_vector))!= ' ' or str(obtain_board_pos(move_position-unit_vector))== opponent):
+        if obtain_board_pos(move_position)==opponent and (obtain_board_pos(move_position+unit_vector)!= ' ' or obtain_board_pos(move_position-unit_vector)== opponent):
             print('Error: Cannot push more than one stone (Case 1)')
             legal = False               #if moved onto opponent stone, checks if there is an opponent stone 1 unit ahead or behind of stone
             pass
-        if str(obtain_board_pos(move_position))==' ' and str(obtain_board_pos(move_position-unit_vector))==opponent and str(obtain_board_pos(move_position+unit_vector))!=' ':
+        if obtain_board_pos(move_position)==' ' and obtain_board_pos(move_position-unit_vector)==opponent and obtain_board_pos(move_position+unit_vector)!=' ':
             print('Error: Cannot push more than one stone (Case 2)')
             legal= False                #if moved onto empty space, checks if there is an opponent stone both 1 unit behind and ahead of stone
             pass
