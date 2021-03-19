@@ -8,11 +8,21 @@ viable_vectors=np.concatenate((unit_vectors,unit_vectors*2))
 
 
 def obtain_board_pos(stone):
-    out_of_bounds=False
-    if stone[1] or stone[2] not in (0,1,2,3):
-        out_of_bounds==True
-    return board[stone[0]][stone[1]][stone[2]]
-
+    if stone[1] not in [0,1,2,3] or stone[2] not in [0,1,2,3]:      #checks if position is out of bounds and returns ' '
+        position=' '
+    else:
+        position=board[stone[0]][stone[1]][stone[2]]
+    return position
+def generate_unit_vector(vector):
+    unit_vector=[0,0,0]
+    for i in (1,2):
+        if vector[i] in (1,2):
+            unit_vector[i]=1
+        if vector[i] in (-1,-2):
+            unit_vector[i]=-1
+        if vector[i]==0:
+            unit_vector[i]=0
+    return unit_vector
 def check_if_pushes(board,stone,vector):                                       #checks if there is a stone in the vector path of the aggressive move
     if board[stone[0]][stone[1]+vector[1]][stone[2]+vector[2]]!=' 'or\
                 board[stone[0]][stone[1]+int(round(vector[1]/2+0.1))][stone[2]+int(round(vector[2]/2+0.1))]!=' ':
@@ -56,11 +66,15 @@ def aggressive_move(color, passive_board, stone_coordinate, vector):
     opponent=players[0]
     while True:
         move_position=np.array(stone_coordinate)+np.array(vector)
-        unit_vector=np.int_(np.round(np.array(vector)/2 + 0.01))
+        unit_vector=np.array(generate_unit_vector(vector))
         if move_position[1] not in [0,1,2,3] or move_position[2] not in [0,1,2,3]:
             print('Error: Aggressive move out of 4x4 bounds')
             legal = False
             return legal
+        if obtain_board_pos(stone_coordinate)!=color:                          #checks if you're selecting your own stone
+            print("Error: no '"+ str(color)+"' stone at "+ str(stone_coordinate) + '  (aggressive move)')
+            legal = False
+            pass
         if stone_coordinate[0] % 2 == passive_board % 2:
             print('error: stone must be played on opposite colored board as your passive move')                 #must play on boards of opposite parity
             legal = False
@@ -80,11 +94,11 @@ def aggressive_move(color, passive_board, stone_coordinate, vector):
             print('Error: Cannot push more than one stone (Case 2)')
             legal= False                #if moved onto empty space, checks if there is an opponent stone both 1 unit behind and ahead of stone
             pass
-        return legal
+        return legal, opponent, unit_vector
 def passive_aggressive(color,init_stone,init_move,aggro_stone):
     legal=False
     passive_legal, vector, sub_board = passive_move(color, init_stone, init_move)       #determines if passive move is legal, records the vector of the move
-    aggro_legal=aggressive_move(color, sub_board, aggro_stone, vector)                  #using the vector from passive move, applies to aggressive stone and determines if legal
+    aggro_legal, opponent, unit_vector = aggressive_move(color, sub_board, aggro_stone, vector)                  #using the vector from passive move, applies to aggressive stone and determines if legal
     aggressive_moved=(aggro_stone[0],aggro_stone[1]+vector[1],aggro_stone[2]+vector[2]) #records position of newly moved aggressive stone
     print('stone selected: '+str([obtain_board_pos(init_stone)])+ ' at ' + str(init_stone))
     print('move position: '+str([obtain_board_pos(init_move)]) + ' at ' +str(init_move))
@@ -92,6 +106,14 @@ def passive_aggressive(color,init_stone,init_move,aggro_stone):
     print('aggressive stone moved to: ' + str([obtain_board_pos(aggressive_moved)])+' at ' + str(aggressive_moved))
     if aggro_legal==True and passive_legal==True:
         legal = True
+    if legal == True and obtain_board_pos(aggressive_moved) == opponent:
+        print(opponent + ' stone pushed from ' + str(aggressive_moved) + ' to ' + str(aggressive_moved+unit_vector))
+        if -1 in aggressive_moved+unit_vector or 4 in aggressive_moved+unit_vector:
+            print(opponent + ' stone removed from the board')
+    if legal == True and obtain_board_pos(aggressive_moved) == ' ' and obtain_board_pos(aggressive_moved-unit_vector)==opponent:
+        print(str([opponent]) + ' stone pushed from ' + str(aggressive_moved-unit_vector) + ' to ' + str(aggressive_moved+unit_vector) )
+        if -1 in aggressive_moved+unit_vector or 4 in aggressive_moved+unit_vector:
+            print(opponent + ' stone removed from the board')
     return legal
-legality=passive_aggressive('b',(1,0,0),(1,2,0),(2,0,1))
+legality=passive_aggressive('b',(1,0,3),(1,2,1),(2,0,2))
 print(legality)
